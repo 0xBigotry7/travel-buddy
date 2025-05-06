@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# TravelBuddy Features Guide
+
+- The goal of TravelBuddy is to provide a smart travel companion that helps users plan, organize, and enhance their trips.
+- Features may include itinerary planning, destination recommendations, booking assistance, local tips, and more.
+- As new travel features are added, document their user stories, main files, and API integrations in this rule.
+- Reference this rule when planning or updating any travel-specific functionality.

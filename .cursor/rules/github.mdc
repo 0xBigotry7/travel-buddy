@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# GitHub Usage Guide
+
+- Only push to GitHub when explicitly requested.
+- Never push untested or failing code to GitHub.
+- Always keep `.gitignore` up to date to avoid committing sensitive or unnecessary files.
+- Use clear, descriptive commit messages for all changes.
+- Review the status file and all relevant rules before pushing.
