@@ -15,6 +15,9 @@ import {
 } from 'react';
 import { toast } from 'sonner';
 import { useLocalStorage, useWindowSize } from 'usehooks-ts';
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from 'react-speech-recognition';
 
 import { ArrowUpIcon, PaperclipIcon, StopIcon } from './icons';
 import { PreviewAttachment } from './preview-attachment';
@@ -198,6 +201,42 @@ function PureMultimodalInput({
     setHasMounted(true);
   }, []);
 
+  const [micActive, setMicActive] = useState(false);
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
+
+  useEffect(() => {
+    // Set up the onend callback for SpeechRecognition
+    const recognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+    if (recognition && SpeechRecognition.browserSupportsSpeechRecognition()) {
+      const instance = SpeechRecognition.getRecognition();
+      if (instance) {
+        instance.onend = () => {
+          setMicActive(false);
+          if (transcript && transcript.trim().length > 0) {
+            setInput(transcript);
+            adjustHeight();
+          }
+        };
+      }
+    }
+    // Clean up on unmount
+    return () => {
+      const instance =
+        SpeechRecognition.getRecognition && SpeechRecognition.getRecognition();
+      if (instance) {
+        instance.onend = null;
+      }
+    };
+    // Only re-run if transcript changes
+  }, [transcript]);
+
   return (
     <div className="relative w-full flex flex-col gap-4">
       <AnimatePresence>
@@ -276,6 +315,9 @@ function PureMultimodalInput({
         className={cx(
           'min-h-[24px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-2xl !text-base bg-muted pb-10 dark:border-zinc-700',
           className,
+          micActive &&
+            listening &&
+            'ring-2 ring-blue-400 border-blue-400 shadow-lg',
         )}
         rows={2}
         autoFocus
@@ -296,11 +338,39 @@ function PureMultimodalInput({
         }}
       />
 
-      <div className="absolute bottom-0 p-2 w-fit flex flex-row justify-start">
+      <div className="absolute bottom-0 p-2 w-fit flex flex-row justify-start gap-2">
         <AttachmentsButton fileInputRef={fileInputRef} status={status} />
       </div>
 
-      <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-row justify-end">
+      <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-row justify-end gap-2">
+        <button
+          type="button"
+          aria-pressed={micActive && listening}
+          className={cx(
+            'rounded-full p-1.5 h-fit border dark:border-zinc-600',
+            micActive && listening
+              ? 'bg-blue-200 dark:bg-blue-900 animate-pulse'
+              : 'bg-muted',
+          )}
+          onClick={() => {
+            if (!browserSupportsSpeechRecognition) {
+              toast.error(
+                'Speech recognition is not supported in this browser.',
+              );
+              return;
+            }
+            if (!micActive) {
+              resetTranscript();
+              setMicActive(true);
+              SpeechRecognition.startListening();
+            } else {
+              SpeechRecognition.stopListening();
+              // onEnd will handle setting input and resetting micActive
+            }
+          }}
+        >
+          {micActive && listening ? '🎙️' : '🎤'}
+        </button>
         {status === 'submitted' ? (
           <StopButton stop={stop} setMessages={setMessages} />
         ) : (

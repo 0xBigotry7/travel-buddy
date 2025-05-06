@@ -9,3 +9,11 @@ alwaysApply: false
 - Features may include itinerary planning, destination recommendations, booking assistance, local tips, and more.
 - As new travel features are added, document their user stories, main files, and API integrations in this rule.
 - Reference this rule when planning or updating any travel-specific functionality.
+
+## Implemented Features
+
+- **Voice Input in Chat**
+  - Mic button in chat input toggles browser-based speech recognition (react-speech-recognition)
+  - Click to start/stop listening; transcript is filled in automatically
+  - Visual feedback (input highlight) while listening
+  - Main file: [`components/multimodal-input.tsx`](mdc:components/multimodal-input.tsx)
